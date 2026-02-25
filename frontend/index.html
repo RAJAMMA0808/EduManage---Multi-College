@@ -1,0 +1,50 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>College Management Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+<style>
+    /* Default for light theme (auth pages) */
+    .auth-view input:-webkit-autofill,
+    .auth-view input:-webkit-autofill:hover,
+    .auth-view input:-webkit-autofill:focus,
+    .auth-view input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px white inset !important;
+        -webkit-text-fill-color: #0f172a !important; /* Corresponds to text-slate-900 */
+    }
+
+    /* Override for dark theme (main app) */
+    .app-view input:-webkit-autofill,
+    .app-view input:-webkit-autofill:hover,
+    .app-view input:-webkit-autofill:focus,
+    .app-view input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px #334155 inset !important; /* bg-slate-700 */
+        -webkit-text-fill-color: #f1f5f9 !important; /* text-slate-100 */
+    }
+
+
+    /* Chatbot styles */
+    .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    .fade-out { animation: fadeOut 0.3s ease-in forwards; }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px) scale(0.95); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes fadeOut {
+        from { opacity: 1; transform: translateY(0) scale(1); }
+        to { opacity: 0; transform: translateY(20px) scale(0.95); }
+    }
+</style>
+</head>
+<body class="bg-slate-950">
+    <div id="root"></div>
+    <script type="module" src="/src/index.tsx"></script>
+</body>
+</html>

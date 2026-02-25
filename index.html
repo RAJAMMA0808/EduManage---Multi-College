@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magical Scroll To-Do</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #020617;
+            font-family: 'MedievalSharp', cursive;
+            overflow-x: hidden;
+        }
+
+        .parchment {
+            background: #f4e4bc;
+            background-image: url("https://www.transparenttextures.com/patterns/paper-fibers.png");
+            box-shadow: 0 0 20px rgba(0,0,0,0.5), inset 0 0 50px rgba(139, 69, 19, 0.2);
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .parchment::before, .parchment::after {
+            content: "";
+            position: absolute;
+            left: -10px;
+            right: -10px;
+            height: 20px;
+            background: #8b4513;
+            border-radius: 10px;
+        }
+
+        .parchment::before { top: -10px; }
+        .parchment::after { bottom: -10px; }
+
+        @keyframes stars {
+            from { transform: translateY(0); }
+            to { transform: translateY(-1000px); }
+        }
+
+        .star-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2000px;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .burning {
+            animation: burn 0.8s forwards;
+        }
+
+        @keyframes burn {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+                filter: brightness(1) blur(0);
+            }
+            30% {
+                filter: brightness(2) sepia(1) hue-rotate(-50deg);
+                box-shadow: 0 0 20px #ff4500;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+                filter: brightness(0) blur(5px);
+            }
+        }
+
+        .magic-glow {
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+        }
+
+        .cinzel {
+            font-family: 'Cinzel', serif;
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "express": "https://esm.sh/express@^5.2.1",
+    "url": "https://esm.sh/url@^0.11.4",
+    "framer-motion": "https://esm.sh/framer-motion@^12.26.2",
+    "path": "https://esm.sh/path@^0.12.7",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "@google/genai": "https://esm.sh/@google/genai@^1.37.0",
+    "@react-three/drei": "https://esm.sh/@react-three/drei@^10.7.7",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "three": "https://esm.sh/three@^0.182.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "@react-three/fiber": "https://esm.sh/@react-three/fiber@^9.5.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "pg": "https://esm.sh/pg@^8.17.1",
+    "cors": "https://esm.sh/cors@^2.8.5",
+    "dotenv/": "https://esm.sh/dotenv@^17.2.3/",
+    "vite": "https://esm.sh/vite@^7.3.1"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module" src="index.tsx"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
