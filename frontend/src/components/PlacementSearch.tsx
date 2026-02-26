@@ -124,8 +124,12 @@ const PlacementSearch: React.FC<PlacementSearchProps> = ({
         if (!sortConfig) return 0;
         const key = sortConfig.key;
         const order = sortConfig.order;
-        if (a[key] < b[key]) return order === 'asc' ? -1 : 1;
-        if (a[key] > b[key]) return order === 'asc' ? 1 : -1;
+        
+        const valA = a[key] ?? '';
+        const valB = b[key] ?? '';
+        
+        if (valA < valB) return order === 'asc' ? -1 : 1;
+        if (valA > valB) return order === 'asc' ? 1 : -1;
         return 0;
     });
   }, [results, sortConfig]);

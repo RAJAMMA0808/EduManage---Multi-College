@@ -431,27 +431,36 @@ const NotificationUploadForm: React.FC<{ user: User }> = ({ user }) => {
             return;
         }
 
-        const fileUrl = URL.createObjectURL(file);
-        const newNotif = {
-            id: Date.now(),
-            title: title,
-            department: department,
-            lastDate: lastDate,
-            uploadDate: new Date().toISOString(),
-            fileName: file.name,
-            fileUrl: fileUrl, 
-            isNew: true
+        const reader = new FileReader();
+        reader.onload = () => {
+            try {
+                const dataUrl = reader.result as string;
+                const newNotif = {
+                    id: Date.now(),
+                    title: title,
+                    department: department,
+                    lastDate: lastDate,
+                    uploadDate: new Date().toISOString(),
+                    fileName: file.name,
+                    fileUrl: dataUrl, 
+                    isNew: true
+                };
+
+                const existingNotifs = JSON.parse(localStorage.getItem('exam_notifications') || '[]');
+                localStorage.setItem('exam_notifications', JSON.stringify([newNotif, ...existingNotifs]));
+
+                alert("Notification Submitted Successfully!");
+                setTitle('');
+                setDepartment(forcedDept || 'All');
+                setLastDate('');
+                setFile(null);
+                if (fileInputRef.current) fileInputRef.current.value = '';
+            } catch (e) {
+                alert("Failed to store notification. Storage limit might be reached.");
+            }
         };
-
-        const existingNotifs = JSON.parse(localStorage.getItem('exam_notifications') || '[]');
-        localStorage.setItem('exam_notifications', JSON.stringify([newNotif, ...existingNotifs]));
-
-        alert("Notification Submitted Successfully!");
-        setTitle('');
-        setDepartment(forcedDept || 'All');
-        setLastDate('');
-        setFile(null);
-        if (fileInputRef.current) fileInputRef.current.value = '';
+        reader.onerror = () => alert("Error reading file.");
+        reader.readAsDataURL(file);
     };
 
     return (
@@ -713,6 +722,49 @@ const ApplicationSubmission: React.FC<ApplicationSubmissionProps> = ({ user, onT
         }
     };
 
+    const handleDownloadTemplate = () => {
+        let headers: string[] = [];
+        let sampleRow: string[] = [];
+        let filename = `${uploadDataType}_template.csv`;
+
+        switch (uploadDataType) {
+            case 'marks':
+                headers = ['College Code', 'AdmissionNumber', 'Program Code', 'Student Name', 'Gender', 'Year', 'Semester', 'ExamType', 'SubjectCode', 'SubjectName', 'Internal Mark', 'Internal Out of Marks', 'External Mark', 'External Out of Marks', 'Total Marks', 'Out of Marks (Max)'];
+                sampleRow = ['KNRR', 'KCSE202401', 'CSE', 'Aarav Kapoor', 'M', '1', '1', 'Semester', 'CS101', 'Intro to Programming', '35', '40', '52', '60', '87', '100'];
+                break;
+            case 'fee':
+                headers = ['College Code', 'AdmissionNumber', 'Student Name', 'Gender', 'Admission Type', 'Program Code', 'Semester', 'Academic Year', 'Paid Amount', 'Total Fees'];
+                sampleRow = ['KNRR', 'KCSE202401', 'Aarav Kapoor', 'M', 'Counselling Seat/Scholarship/Sports Quota', 'CSE', '1', '2024-2025', '75000', '120000'];
+                break;
+            case 'examFee':
+                headers = ['AdmissionNumber', 'Semester', 'Academic Year', 'LateFee', 'TotalExamFee'];
+                sampleRow = ['KCSE202401', '1', '2024-2025', '0', '760'];
+                break;
+            case 'placement':
+                headers = ['S.No', 'College Code', 'Admission Number', 'Student Name', 'Course/Branch', 'Year', 'Semester', 'Student Mobile Number', 'Company/Organization Name', 'HR Name', 'HR Mobile Number'];
+                sampleRow = ['1', 'KNRR', 'KCSE202201', 'Priya Sharma', 'CSE', '4', '7', '9876543210', 'Infosys Ltd', 'HR Manager', '9123456789'];
+                break;
+            case 'studentAttendance':
+            case 'facultyAttendance':
+            case 'staffAttendance':
+                const idLabel = uploadDataType === 'studentAttendance' ? 'AdmissionNumber' : (uploadDataType === 'facultyAttendance' ? 'FacultyID' : 'StaffID');
+                headers = [idLabel, 'Date', 'Morning', 'Afternoon'];
+                sampleRow = [uploadDataType === 'studentAttendance' ? 'KCSE202401' : 'F101', formatDate(new Date()), 'Present', 'Present'];
+                break;
+        }
+
+        const csvContent = [headers.join(','), sampleRow.join(',')].join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
     const tabClass = (tabName: ActiveTab) => `px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${activeTab === tabName ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-500'}`;
     
     const getTemplateInfo = (type: FormType) => {
@@ -804,7 +856,7 @@ const ApplicationSubmission: React.FC<ApplicationSubmissionProps> = ({ user, onT
                 <select value={uploadDataType} onChange={(e) => setUploadDataType(e.target.value as FormType)} className={commonSelectClass}>
                     {uploadOptions.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                 </select>
-                <div className="mt-4 p-4 bg-blue-900/50 border border-blue-700 rounded-md"><p className="text-sm text-blue-200"><span className="font-semibold">Template Info:</span> {getTemplateInfo(uploadDataType)}</p><div className="flex items-center gap-4 mt-2"><button className="flex items-center gap-2 text-sm font-medium text-blue-400 hover:underline"><DownloadIcon className="h-4 w-4" /> Download Template</button><button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 text-sm font-medium text-blue-400 hover:underline"><TableCellsIcon className="h-4 w-4" /> Show Sample Data</button></div></div>
+                <div className="mt-4 p-4 bg-blue-900/50 border border-blue-700 rounded-md"><p className="text-sm text-blue-200"><span className="font-semibold">Template Info:</span> {getTemplateInfo(uploadDataType)}</p><div className="flex items-center gap-4 mt-2"><button onClick={handleDownloadTemplate} className="flex items-center gap-2 text-sm font-medium text-blue-400 hover:underline"><DownloadIcon className="h-4 w-4" /> Download Template</button><button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 text-sm font-medium text-blue-400 hover:underline"><TableCellsIcon className="h-4 w-4" /> Show Sample Data</button></div></div>
             </div>
             <div onDragEnter={(e) => handleDragEvents(e, true)} onDragLeave={(e) => handleDragEvents(e, false)} onDragOver={(e) => handleDragEvents(e, true)} onDrop={handleDrop} className={`relative border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors ${isDragging ? 'border-blue-500 bg-slate-800' : 'border-slate-600 bg-slate-900 hover:border-slate-500'}`}>
                 <div className="flex flex-col items-center justify-center text-slate-400"><UploadIcon className="h-10 w-10 mb-3" /><h3 className="text-lg font-semibold text-slate-200">{selectedFile ? `File: ${selectedFile.name}` : 'Click or drag file to upload'}</h3><p className="text-sm">Supports: .xlsx, .xls, .csv (max 10MB)</p></div>

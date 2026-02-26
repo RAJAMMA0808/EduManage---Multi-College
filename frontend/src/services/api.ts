@@ -25,6 +25,7 @@ import {
   PlacementWithStudent,
   LogEntry,
 } from '../types/index';
+import { downloadPdf } from '../utils/pdfUtils';
 import {
   mockFaculty,
   mockFacultyAttendance,
@@ -349,7 +350,29 @@ export const uploadSyllabusPdf = async (department: string, file: File): Promise
 
 export const getSyllabusPdfs = async (department: string): Promise<SyllabusPdf[]> => {
     try {
-        const allSyllabi = JSON.parse(localStorage.getItem(SYLLABUS_STORAGE_KEY) || '[]');
+        const stored = localStorage.getItem(SYLLABUS_STORAGE_KEY);
+        let allSyllabi = stored ? JSON.parse(stored) : [];
+        
+        // Provide initial mock data if empty
+        if (allSyllabi.length === 0) {
+            const mockSyllabus = [
+                {
+                    id: 1,
+                    department: 'CSE',
+                    name: 'CSE_R22_Syllabus.pdf',
+                    data: "data:application/pdf;base64,JVBERi0xLjQKJfbk/N8KMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9Db3VudCAxCi9LaWRzIFszIDAgUl0KPj4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovUmVzb3VyY2VzIDw8Ci9Gb250IDw8Ci9GMSA0IDAgUgo+Pgo+PgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQovQ29udGVudHMgNSAwIFIKPj4KZW5kb2JqCjQgMCBvYmoKPDwKL1R5cGUgL0ZvbnQKL1N1YnR5cGUgL1R5cGUxCi9CYXNlRm9udCAvSGVsdmV0aWNhCj4+CmVuZG9iago1IDAgb2JqCjw8Ci9MZW5ndGggNDQKPj4Kc3RyZWFtCkJUCi9GMSAyNCBUZgo3MiA3MjAgVGQKKEpOVFVIIFN5bGxhYnVzIFNhbXBsZSkgVGoKRVQKZW5kc3RyZWFtCmVuZG9iagp4cmVmCjAgNgowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMTggMDAwMDAgbiAKMDAwMDAwMDA3NyAwMDAwMCBuIAowMDAwMDAwMTU4IDAwMDAwIG4gCjAwMDAwMDAzMDcgMDAwMDAgbiAKMDAwMDAwMDM5NCAwMDAwMCBuIAp0cmFpbGVyCjw8Ci9TaXplIDYKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjQ4OQolJUVPRgo="
+                },
+                {
+                    id: 2,
+                    department: 'ECE',
+                    name: 'ECE_R22_Syllabus.pdf',
+                    data: "data:application/pdf;base64,JVBERi0xLjQKJfbk/N8KMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9Db3VudCAxCi9LaWRzIFszIDAgUl0KPj4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovUmVzb3VyY2VzIDw8Ci9Gb250IDw8Ci9GMSA0IDAgUgo+Pgo+PgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQovQ29udGVudHMgNSAwIFIKPj4KZW5kb2JqCjQgMCBvYmoKPDwKL1R5cGUgL0ZvbnQKL1N1YnR5cGUgL1R5cGUxCi9CYXNlRm9udCAvSGVsdmV0aWNhCj4+CmVuZG9iago1IDAgb2JqCjw8Ci9MZW5ndGggNDQKPj4Kc3RyZWFtCkJUCi9GMSAyNCBUZgo3MiA3MjAgVGQKKEpOVFVIIFN5bGxhYnVzIFNhbXBsZSkgVGoKRVQKZW5kc3RyZWFtCmVuZG9iagp4cmVmCjAgNgowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMTggMDAwMDAgbiAKMDAwMDAwMDA3NyAwMDAwMCBuIAowMDAwMDAwMTU4IDAwMDAwIG4gCjAwMDAwMDAzMDcgMDAwMDAgbiAKMDAwMDAwMDM5NCAwMDAwMCBuIAp0cmFpbGVyCjw8Ci9TaXplIDYKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjQ4OQolJUVPRgo="
+                }
+            ];
+            localStorage.setItem(SYLLABUS_STORAGE_KEY, JSON.stringify(mockSyllabus));
+            allSyllabi = mockSyllabus;
+        }
+
         return allSyllabi.filter((s: any) => s.department === department).map((s: any) => ({
             name: s.name,
             data: s.data
@@ -370,7 +393,9 @@ export const deleteSyllabusPdf = async (department: string, filename: string): P
     }
 };
 
-export const downloadSyllabusPdf = (u: string, n: string) => { const l = document.createElement('a'); l.href = u; l.download = n; document.body.appendChild(l); l.click(); document.body.removeChild(l); };
+export const downloadSyllabusPdf = (dataUrl: string, fileName: string) => {
+    downloadPdf(dataUrl, fileName);
+};
 
 export const addStudentAttendance = (d: any) => {};
 export const addFacultyAttendance = (d: any) => {};

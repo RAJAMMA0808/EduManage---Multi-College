@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { MenuIcon, ChevronDownIcon, ChevronUpIcon, DocumentIcon, TrashIcon, DownloadIcon, RefreshIcon } from './icons';
 import { getSyllabusPdfs, downloadSyllabusPdf, deleteSyllabusPdf } from '../services/api';
 import { SyllabusPdf, User, Role } from '../types';
+import { viewPdf } from '../utils/pdfUtils';
 
 interface CoursesOfferedProps {
   user: User;
@@ -109,12 +110,7 @@ const CoursesOffered: React.FC<CoursesOfferedProps> = ({ user, onToggleSidebar }
   };
 
   const handleOpenPdf = (dataUrl: string) => {
-    const newWindow = window.open();
-    if (newWindow) {
-        newWindow.document.write(`<iframe src="${dataUrl}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
-    } else {
-        alert('Please allow popups to view the PDF.');
-    }
+    viewPdf(dataUrl);
   };
 
   return (
@@ -173,14 +169,14 @@ const CoursesOffered: React.FC<CoursesOfferedProps> = ({ user, onToggleSidebar }
                                             onClick={() => handleOpenPdf(pdf.data)} 
                                             className="flex items-center gap-1 px-3 py-1 text-[10px] font-black uppercase bg-emerald-600 hover:bg-emerald-700 text-white rounded-md transition-all shadow-lg"
                                         >
-                                            View
+                                            View PDF
                                         </button>
                                         <button 
                                             onClick={() => downloadSyllabusPdf(pdf.data, pdf.name)} 
                                             className="flex items-center gap-1 px-3 py-1 text-[10px] font-black uppercase bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-all shadow-lg"
                                         >
                                             <DownloadIcon className="h-3 w-3" />
-                                            Get File
+                                            Download
                                         </button>
                                         {(user.role === Role.CHAIRMAN || user.role === Role.PRINCIPAL || (user.role === Role.HOD && user.department === course.abbr)) && (
                                             <button 

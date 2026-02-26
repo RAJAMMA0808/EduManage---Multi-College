@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { User, Role } from '../types';
-import { MenuIcon, DocumentIcon, BellIcon, TrashIcon } from './icons';
+import { MenuIcon, DocumentIcon, BellIcon, TrashIcon, DownloadIcon } from './icons';
 import { DEPARTMENTS } from '../constants';
+import { viewPdf, downloadPdf } from '../utils/pdfUtils';
 
 interface ExamNotificationProps {
   user: User;
@@ -20,6 +21,9 @@ interface Notification {
     isNew: boolean;
 }
 
+// A small valid PDF Data URL for mock data
+const SAMPLE_PDF_DATA = "data:application/pdf;base64,JVBERi0xLjQKJfbk/N8KMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5kb2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9Db3VudCAxCi9LaWRzIFszIDAgUl0KPj4KZW5kb2JqCjMgMCBvYmoKPDwKL1R5cGUgL1BhZ2UKL1BhcmVudCAyIDAgUgovUmVzb3VyY2VzIDw8Ci9Gb250IDw8Ci9GMSA0IDAgUgo+Pgo+PgovTWVkaWFCb3ggWzAgMCA2MTIgNzkyXQovQ29udGVudHMgNSAwIFIKPj4KZW5kb2JqCjQgMCBvYmoKPDwKL1R5cGUgL0ZvbnQKL1N1YnR5cGUgL1R5cGUxCi9CYXNlRm9udCAvSGVsdmV0aWNhCj4+CmVuZG9iago1IDAgb2JqCjw8Ci9MZW5ndGggNDQKPj4Kc3RyZWFtCkJUCi9GMSAyNCBUZgo3MiA3MjAgVGQKKEV4YW0gTm90aWZpY2F0aW9uIFNhbXBsZSkgVGoKRVQKZW5kc3RyZWFtCmVuZG9iagp4cmVmCjAgNgowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMTggMDAwMDAgbiAKMDAwMDAwMDA3NyAwMDAwMCBuIAowMDAwMDAwMTU4IDAwMDAwIG4gCjAwMDAwMDAzMDcgMDAwMDAgbiAKMDAwMDAwMDM5NCAwMDAwMCBuIAp0cmFpbGVyCjw8Ci9TaXplIDYKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjQ4OQolJUVPRgo=";
+
 // Mock initial data
 const MOCK_NOTIFICATIONS: Notification[] = [
     {
@@ -29,7 +33,7 @@ const MOCK_NOTIFICATIONS: Notification[] = [
         lastDate: "2025-12-31",
         uploadDate: "2025-12-16T10:00:00Z", 
         fileName: "JNTUH_BTech_4-1_Exams_Notification_Dec_2025.pdf",
-        fileUrl: "", 
+        fileUrl: SAMPLE_PDF_DATA, 
         isNew: true
     }
 ];
@@ -72,24 +76,11 @@ const ExamNotification: React.FC<ExamNotificationProps> = ({ user, onToggleSideb
     }
 
     const handleDownload = (notification: Notification) => {
-        if (notification.fileUrl) {
-            const link = document.createElement('a');
-            link.href = notification.fileUrl;
-            link.download = notification.fileName;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } else {
-            alert(`Simulating download for: ${notification.fileName}`);
-        }
+        downloadPdf(notification.fileUrl, notification.fileName);
     };
 
     const handleOpen = (notification: Notification) => {
-        if (notification.fileUrl) {
-            window.open(notification.fileUrl, '_blank');
-        } else {
-            alert(`Simulating open for: ${notification.fileName}`);
-        }
+        viewPdf(notification.fileUrl);
     };
 
     // Filter notifications based on user department
@@ -177,14 +168,15 @@ const ExamNotification: React.FC<ExamNotificationProps> = ({ user, onToggleSideb
                                                 onClick={() => handleOpen(n)} 
                                                 className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg transition-colors shadow-md"
                                             >
-                                                Open
+                                                View PDF
                                             </button>
 
                                             <button 
                                                 onClick={() => handleDownload(n)} 
-                                                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-colors shadow-md" 
+                                                className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-colors shadow-md" 
                                             >
-                                                Download
+                                                <DownloadIcon className="h-4 w-4" />
+                                                <span>Download</span>
                                             </button>
                                             
                                             {canDelete && (
@@ -238,13 +230,14 @@ const ExamNotification: React.FC<ExamNotificationProps> = ({ user, onToggleSideb
                                                         onClick={() => handleOpen(n)} 
                                                         className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 rounded text-white text-xs font-bold shadow-md"
                                                      >
-                                                        Open
+                                                        View PDF
                                                      </button>
                                                      <button 
                                                         onClick={() => handleDownload(n)} 
-                                                        className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 rounded text-white text-xs font-bold shadow-md" 
+                                                        className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-600 hover:bg-blue-700 rounded text-white text-xs font-bold shadow-md" 
                                                      >
-                                                        Download
+                                                        <DownloadIcon className="h-3.5 w-3.5" />
+                                                        <span>Download</span>
                                                      </button>
                                                      {canDelete && (
                                                          <button 

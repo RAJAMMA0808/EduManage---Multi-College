@@ -4,6 +4,6 @@
     "microphone",
     "geolocation"
   ],
-  "name": "Remix: 255",
-  "description": ""
+  "name": "EduManage",
+  "description": "A comprehensive multi-college management system with OCR, attendance tracking, and academic reporting."
 }
