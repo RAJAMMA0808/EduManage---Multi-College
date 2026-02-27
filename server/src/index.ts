@@ -5,10 +5,20 @@ import { PoolClient } from 'pg';
 import dbPool from './db';
 import { seedDatabase, LATEST_ATTENDANCE_DATE, ALL_SUBJECTS } from './seeder';
 
+//const app = express();
+//const PORT = process.env.PORT || 8080;
+
+//app.use(cors());
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-app.use(cors());
+app.use(cors({
+  origin: "http://edumanage-app.s3-website-us-east-1.amazonaws.com",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true
+}));
+
+//app.use(express.json({ limit: '50mb' }));
 app.use(express.json({ limit: '50mb' }) as any);
 
 /**
